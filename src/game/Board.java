@@ -39,7 +39,7 @@ public class Board {
     private static String firstLine(Figure player, Figure ai) {
         // left justify/ minimum of 10/ maximum of 10/ String var/ vs/...
         return String.format(
-                "%-10.10s vs %10.10s",
+                "%10.10s vs %-10.10s",
                 player.getName(),
                 ai.getName()
         );

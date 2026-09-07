@@ -21,19 +21,20 @@ public class PowerNap extends Command {
 
     @Override
     protected boolean execute(GameState g, String[] args) {
+
+        Figure f = g.getPlayerAtTurn();
+
+        f.getStatManager().startPowerNap();
+
+        return true;
+    }
+
+    @Override
+    public boolean preValidate(GameState g, String[] args) {
         if (!super.validate(args)) {
             return false;
         }
-        Figure f = g.getPlayerAtTurn();
 
-        if (f.getPhase() == FigurePhase.DEFENSE) {
-            return false;
-        }
-
-        f.getStatManager().startPowerNap();
-        IO.println("OK.");
-
-
-        return true;
+        return g.getPlayerAtTurn().getPhase() == FigurePhase.ATTACK;
     }
 }

@@ -73,7 +73,7 @@ public class SetDeck extends Command {
 
         String[] cardIdx = Arrays.copyOfRange(args, 1, args.length);
         for (String idx : cardIdx) {
-            if (!isInteger(idx)) {
+            if (isNotInteger(idx)) {
                 return false;
             }
         }

@@ -6,11 +6,11 @@ import figure.Figure;
 import game.GamePhase;
 import game.GameState;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
  * Holds a list of commands that can be processed.
+ *
  * @author ulprv
  */
 public class CommandProcessor {
@@ -18,6 +18,7 @@ public class CommandProcessor {
 
     /**
      * creates a processor by giving it a list of commands.
+     *
      * @param cmdRepo contains a list of commands
      */
     public CommandProcessor(CommandRepository cmdRepo) {
@@ -26,37 +27,39 @@ public class CommandProcessor {
 
     /**
      * starts processing command by matching the keyword against the commands in the repository.
-     * @param g is the game state
+     *
+     * @param g        is the game state
      * @param rawInput is raw user input string
      * @return true if a command can be processed and consumes an action
      */
-    public boolean processCommand(GameState g, String rawInput) {
+    public Optional<Command.ParsedCommand> parseCommand(GameState g, String rawInput) {
+        Optional<Command.ParsedCommand> repoCommand = parseRepositoryCommand(rawInput);
+
+        if(repoCommand.isPresent()) {
+            return repoCommand;
+        }
+
+        Optional<Command.ParsedCommand> cardCommand = parseCardCommand(g, rawInput);
+        if (cardCommand.isPresent()) {
+            return cardCommand;
+        }
+
+        System.out.println("ERROR: Command not found");
+        return Optional.empty();
+    }
+
+    private Optional<Command.ParsedCommand> parseRepositoryCommand(String rawInput) {
         Optional<Command> result = this.repository.matchWithKeyword(rawInput.toLowerCase());
 
-        if (result.isPresent()) {
-            return executeRepositoryCommand(g, rawInput, result.get());
+        if (result.isEmpty()) {
+            return Optional.empty();
         }
 
-        if (checkCardCommand(g, rawInput)) {
-            return true;
-        }
-
-        IO.println("ERROR: Command not found");
-        return false;
+        Command cmd = result.get();
+        String[] parsedArgs = extractArguments(rawInput, cmd.getKeyword().length());
+        return Optional.of(new Command.ParsedCommand(cmd, parsedArgs));
     }
 
-    /**
-     * executes the command within its repository.
-     *
-     * @param g is the game state
-     * @param rawInput is the raw user input
-     * @param cmd is a command
-     * @return true if action is consumed
-     */
-    private boolean executeRepositoryCommand(GameState g, String rawInput, Command cmd) {
-        String[] args = extractArguments(rawInput, cmd.getKeyword().length());
-        return cmd.execute(g, args);
-    }
 
     private String[] extractArguments(String rawInput, int keywordLen) {
         // Exact match with no arguments, e.g. quit
@@ -72,24 +75,24 @@ public class CommandProcessor {
         return new String[0];
     }
 
-    private boolean checkCardCommand(GameState g, String rawInput) {
+    private Optional<Command.ParsedCommand> parseCardCommand(GameState g, String rawInput) {
         if (g.getGamePhase() == GamePhase.SETUP) {
-            return false;
+            return Optional.empty();
         }
 
         Figure activePlayer = g.getPlayerAtTurn();
 
         for (Card card : activePlayer.getCardManager().getHand()) {
             String cardName = card.getName();
-            IO.println("DEBUG " + card.getName() + " " + rawInput);
+
 
             if (rawInput.equals(cardName)) {
 
-                UseCard cardCmd = new UseCard(card);
-                return cardCmd.execute(g, new String[0]);
+                Command.ParsedCommand cardCmd = new Command.ParsedCommand(new UseCard(card), new String[0]);
+                return Optional.of(cardCmd);
             }
         }
 
-        return false;
+        return Optional.empty();
     }
 }

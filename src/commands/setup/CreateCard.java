@@ -112,7 +112,7 @@ public class CreateCard extends Command {
         }
 
         if (type.getExtraArgsCount() == 1) {
-            if (!isInteger(args[4])) {
+            if (isNotInteger(args[4])) {
                 System.out.println("ERROR: Extra argument must be an integer");
                 return false;
             }

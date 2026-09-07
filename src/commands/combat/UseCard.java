@@ -33,9 +33,6 @@ public class UseCard extends Command {
         Figure activePlayer = g.getPlayerAtTurn();
         activePlayer.getCardManager().getHand().remove(card);
 
-        if (!checkPolicies(g)) {
-            return false;
-        }
 
         if (!checkAccuracy(g)) {
             return true;
@@ -79,6 +76,18 @@ public class UseCard extends Command {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean preValidate(GameState g, String[] args) {
+        Figure activePlayer = g.getPlayerAtTurn();
+        // phase check
+        if (!card.getType().isUsableIn(activePlayer.getPhase())) {
+            return false;
+        }
+
+        // card cost check
+        return activePlayer.getStatManager().getCardCost() >= card.getCost();
     }
 
     private boolean checkAccuracy(GameState g) {
@@ -156,18 +165,6 @@ public class UseCard extends Command {
 
         return true;
     }
-
-    private boolean checkPolicies(GameState g) {
-        Figure activePlayer = g.getPlayerAtTurn();
-        // phase check
-        if (!card.getType().isUsableIn(activePlayer.getPhase())) {
-            return false;
-        }
-
-        // card cost check
-        return activePlayer.getStatManager().getCardCost() >= card.getCost();
-    }
-
 
     private int calcDamage(Figure attacker, Figure defender, boolean isDistance) {
 

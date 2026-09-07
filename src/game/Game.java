@@ -1,6 +1,7 @@
 package game;
 
 
+import commands.core.Command;
 import commands.core.CommandProcessor;
 import commands.core.CommandRepository;
 
@@ -22,6 +23,8 @@ import figure.Figure;
 import figure.FigurePhase;
 import game.enemyai.EnemyAI;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -41,6 +44,7 @@ public final class Game {
 
     /**
      * Creates the Game with all its subsystems.
+     *
      * @param seed that determines random behavior.
      */
     public Game(int seed) {
@@ -113,7 +117,8 @@ public final class Game {
         while (this.g.getGamePhase() == GamePhase.SETUP && g.isRunning()) {
             String input = this.in.getNextPlayerInput();
 
-            setupCmdProcessor.processCommand(g, input);
+            Optional<Command.ParsedCommand> cmd = setupCmdProcessor.parseCommand(g, input);
+            cmd.ifPresent(parsedCommand -> parsedCommand.execute(g));
         }
     }
 
@@ -156,55 +161,90 @@ public final class Game {
 
         g.printBoard();
 
-        g.setActivePlayer(attacker);
-        executeFigureAction(attacker, FigurePhase.ATTACK);
-        checkGameEnd();
+        // Get actions first
+        FigureAction attackerAction = getFigureAction(attacker);
+        FigureAction defenderAction = getFigureAction(defender);
 
-        g.setActivePlayer(defender);
-        executeFigureAction(defender, FigurePhase.DEFENSE);
+        if (attackerAction.figure() == g.getPlayer() && !Objects.equals(attackerAction.cmd().getKeyWord(), "smack")) {
+            System.out.println("OK.");
+        }
+
+
+        System.out.println(attacker.getName() + "'s attack: " + attackerAction.cmd().getKeyWord());
+        System.out.println(defender.getName() + "'s defense: " + defenderAction.cmd().getKeyWord());
+
+        g.setActivePlayer(defenderAction.figure());
+        defenderAction.cmd().execute(g);
+        checkGameEnd();
+        defender.tick();
+
+        g.setActivePlayer(attackerAction.figure());
+        attackerAction.cmd().execute(g);
+        attacker.tick();
+
         defender.endDefensePhase();
         checkGameEnd();
     }
 
-    /**
-     * Decides whether the current execution of the action is done via player or ai logic
-     *
-     * @param actor is the figure that is currently doing an action
-     * @param phase describes whether an attack or defense action is required
-     */
-    private void executeFigureAction(Figure actor, FigurePhase phase) {
+    private boolean validateAction(FigureAction figureAction) {
+        if (figureAction == null || figureAction.cmd() == null) {
+            return false;
+        }
+
+        g.setActivePlayer(figureAction.figure());
+        return figureAction.cmd().preValidate(g);
+    }
+
+    private FigureAction getFigureAction(Figure actor) {
         if (actor == g.getAi()) {
-            executeAITurn();
+            return getAIAction();
         } else {
-            executePlayerTurn(phase);
-        }
-        actor.tick();
-    }
-
-    /**
-     * Get the player input and processes it and executes the command
-     *
-     * @param phase is the current phase of the figure that decides upon the action that is required
-     */
-    private void executePlayerTurn(FigurePhase phase) {
-        IO.println(String.format("Player chooses %s move", phase.name().toLowerCase()));
-        IO.println(String.format("Available Card Cost: %d\n\n", g.getPlayer().getStatManager().getCardCost()));
-        boolean actionConsumed = false;
-
-        while (!actionConsumed && g.isRunning()) {
-            String input = in.getNextPlayerInput();
-            actionConsumed = combatCmdProcessor.processCommand(g, input);
+            return getPlayerAction();
         }
     }
 
-    /**
-     * Get the ai input and processes it and executes the command
-     *
-     */
-    private void executeAITurn() {
+    private FigureAction getAIAction() {
         String enemyInput = ai.getNextAction(g);
-        combatCmdProcessor.processCommand(g, enemyInput);
+        Optional<Command.ParsedCommand> result = combatCmdProcessor.parseCommand(g, enemyInput);
+        return result.map(parsedCommand -> new FigureAction(g.getAi(), parsedCommand)).orElse(null);
     }
+
+    private FigureAction getPlayerAction() {
+        if (g.getPlayer().getPhase() == FigurePhase.ATTACK) {
+            System.out.println(g.getPlayer().getName() + " chooses an attack move.");
+        } else {
+            System.out.println(g.getPlayer().getName() + " chooses a defense move.");
+        }
+        System.out.printf("Available Card Cost: %d\n\n%n", g.getPlayer().getStatManager().getCardCost());
+
+
+        while (g.isRunning()) {
+            String input = in.getNextPlayerInput();
+            Optional<Command.ParsedCommand> result = combatCmdProcessor.parseCommand(g, input);
+
+            if (result.isPresent()) {
+                Command.ParsedCommand cmd = result.get();
+                String keyword = cmd.cmd().getKeyword().toLowerCase();
+
+                // execute hand and quit immediately
+                if (keyword.equals("hand") || keyword.equals("quit")) {
+                    g.setActivePlayer(g.getPlayer()); // make sure hand only prints the hand of the player
+                    cmd.execute(g);
+                    if (!g.isRunning()) {
+                        return null;
+                    }
+                    continue;
+                }
+                FigureAction action = new FigureAction(g.getPlayer(), cmd);
+                if (validateAction(action)) {
+                    return action;
+                }
+            }
+        }
+
+        return null;
+    }
+
 
     /**
      * Checks the end of Game condition and ends game if condition is true.
@@ -213,5 +253,14 @@ public final class Game {
         if (g.getPlayer().getStatManager().getCurrentHP() <= 0 || g.getAi().getStatManager().getCurrentHP() <= 0) {
             g.endGame();
         }
+    }
+
+    /**
+     * keeps record of the registered Action of a Figure.
+     *
+     * @param figure is taking action
+     * @param cmd    is the selected action
+     */
+    public record FigureAction(Figure figure, Command.ParsedCommand cmd) {
     }
 }

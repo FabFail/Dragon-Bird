@@ -32,17 +32,9 @@ public class Move extends Command {
      */
     @Override
     protected boolean execute(GameState g, String[] args) {
-        if (!super.validate(args)) {
-            IO.println("DEBUG: Stop Execution and return false");
-            return false;
-        }
+
 
         Figure atTurn = g.getPlayerAtTurn();
-
-        if (atTurn.getPhase() == FigurePhase.ATTACK) {
-            IO.println("DEBUG: Figure cannot move during attack phase!");
-            return false;
-        }
 
         char[] flags = args[0].toCharArray();
         MovementDirection direction = calcFigureDirection(flags);
@@ -63,14 +55,13 @@ public class Move extends Command {
         }
 
         // check whether figure can move horizontally if it wants to move
-        if (hDir != null && !canMoveHorizontal(atTurn.getHorizontalPosition(), opponent.getHorizontalPosition(), hDir)) {
+        if (hDir != null && canNotMoveHorizontal(atTurn.getHorizontalPosition(), opponent.getHorizontalPosition(), hDir)) {
             return false;
         }
 
 
         // check that figure can move vertically if it wants to move
         if (vDir != null && atTurn.getVerticalPosition() == vDir) {
-            IO.println("DEBUG: Figure is already in that position");
             return false;
         }
 
@@ -83,8 +74,48 @@ public class Move extends Command {
             atTurn.setVerticalPosition(vDir);
         }
 
-        IO.println("OK.");
         return true;
+    }
+
+    @Override
+    public boolean preValidate(GameState g, String[] args) {
+        if (!super.validate(args)) {
+            return false;
+        }
+
+        Figure atTurn = g.getPlayerAtTurn();
+
+        if (atTurn.getPhase() == FigurePhase.ATTACK) {
+            return false;
+        }
+
+
+        char[] flags = args[0].toCharArray();
+        MovementDirection direction = calcFigureDirection(flags);
+
+        if (direction == null) {
+            IO.println("ERROR: Invalid movement input!");
+            return false;
+        }
+
+        Figure opponent = g.getPassiveFigure();
+        HorizontalPosition hDir = direction.hPos();
+        VerticalPosition vDir = direction.vPos();
+
+
+        // at least one direction must be specified
+        if (hDir == null && vDir == null) {
+            return false;
+        }
+
+        // check whether figure can move horizontally if it wants to move
+        if (hDir != null && canNotMoveHorizontal(atTurn.getHorizontalPosition(), opponent.getHorizontalPosition(), hDir)) {
+            return false;
+        }
+
+
+        // check that figure can move vertically if it wants to move
+        return vDir == null || atTurn.getVerticalPosition() != vDir;
     }
 
     /**
@@ -95,18 +126,18 @@ public class Move extends Command {
      * @param hDir     the movement direction of the figure at turn
      * @return true if the specified horizontal movement is a valid move
      */
-    private boolean canMoveHorizontal(HorizontalPosition atTurn, HorizontalPosition opponent, HorizontalPosition hDir) {
+    private boolean canNotMoveHorizontal(HorizontalPosition atTurn, HorizontalPosition opponent, HorizontalPosition hDir) {
         int distance = HorizontalPosition.calculateDistance(atTurn, opponent);
 
         if (hDir == HorizontalPosition.FORWARD) {
-            return distance >= 1;
+            return distance < 1;
         }
 
         if (hDir == HorizontalPosition.RETREATED) {
-            return distance < 2;
+            return distance >= 2;
         }
 
-        return false;
+        return true;
     }
 
 

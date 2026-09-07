@@ -92,7 +92,7 @@ public class Card {
 
     @Override
     public String toString() {
-        return String.format("%03d %-10.10s %-8s Val:%d Acc:%d Cost:%d",
+        return String.format("%03d %-12.12s %-5s D:%d Acc:%d CC:%d",
                 this.index,
                 this.name,
                 this.type.getKeyword(),

@@ -26,16 +26,10 @@ public class Smack extends Command {
 
     @Override
     protected boolean execute(GameState g, String[] args) {
-        if (!super.validate(args)) {
-            return false;
-        }
 
         Figure attacker = g.getPlayerAtTurn();
         Figure defender = g.getPassiveFigure();
 
-        if (attacker.getPhase() == FigurePhase.DEFENSE) {
-            return false;
-        }
 
         int bonusAttackPower;
         if (attacker == g.getPlayer()) {
@@ -55,7 +49,7 @@ public class Smack extends Command {
     }
 
     private int playMinigame(GameState g) {
-        IO.println("Smack Math Challenge!");
+        System.out.println("Smack Math Challenge!");
 
         int bonusAttackPower = 0;
 
@@ -96,11 +90,19 @@ public class Smack extends Command {
             j++;
         }
         if (failed) {
-            IO.println("Oh no!");
+            System.out.println("Oh no!");
         } else {
-            IO.println("Correct");
+            System.out.println("Correct");
         }
 
         return bonusAttackPower;
+    }
+
+    @Override
+    public boolean preValidate(GameState g, String[] args) {
+        if (!super.validate(args)) {
+            return false;
+        }
+        return g.getPlayerAtTurn().getPhase() == FigurePhase.ATTACK;
     }
 }

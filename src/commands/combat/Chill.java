@@ -19,16 +19,16 @@ public class Chill extends Command {
 
     @Override
     protected boolean execute(GameState g, String[] args) {
-        if (!super.validate(args)) {
-            IO.println("DEBUG: Stop Execution and return false");
-            return false;
-        }
 
-        if (g.getPlayerAtTurn().getPhase() == FigurePhase.ATTACK) {
-            return false;
-        }
-
-        IO.println("OK.");
         return true;
+    }
+
+    @Override
+    public boolean preValidate(GameState g, String[] args) {
+        if (!super.validate(args)) {
+            return false;
+        }
+
+        return g.getPlayerAtTurn().getPhase() == FigurePhase.DEFENSE;
     }
 }

@@ -8,23 +8,21 @@ import game.Game;
  * @author ulprv
  */
 void main(String[] args) {
-    if (args.length != 1) {
-        System.out.println("Error, invalid amount of arguments");
-        return;
-    }
-
-    int seed = Integer.parseInt(args[0]);
-    Game g = new Game(seed);
-    g.run();
-
-
+    //if (args.length != 1) {
+    //    System.out.println("ERROR: invalid amount of arguments");
+    //    return;
+    //}
+    int seed = 69;
+    Game game = new Game(seed);
+    game.run();
+    /**
     try {
-        seed = Integer.parseInt(args[0]);
+        int seed = Integer.parseInt(args[0]);
         Game game = new Game(seed);
         game.run();
     } catch (NumberFormatException e) {
-        System.out.println("Error, seed must be a number");
+        System.out.println("ERROR: seed must be a number");
 
     }
-
+*/
 }

@@ -35,7 +35,7 @@ public class ListFighter extends Command {
         }
 
         for (Figure f : figures) {
-            IO.println(f);
+            System.out.println(f);
         }
 
         return true;

@@ -3,13 +3,12 @@ package commands.core;
 import cards.CardType;
 import game.GameState;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * base class of a command.
+ *
  * @author ulprv
  */
 public abstract class Command {
@@ -22,6 +21,7 @@ public abstract class Command {
 
     /**
      * creates a command of a given keyword and schema.
+     *
      * @param keyword triggering the command
      */
     protected Command(String keyword) {
@@ -31,6 +31,7 @@ public abstract class Command {
 
     /**
      * get the keyword that is triggering commands.
+     *
      * @return keyword
      */
     public String getKeyword() {
@@ -39,6 +40,7 @@ public abstract class Command {
 
     /**
      * get the schema of arguments a command needs.
+     *
      * @return schema
      */
     public List<Argument> getSchema() {
@@ -47,7 +49,8 @@ public abstract class Command {
 
     /**
      * executes a command.
-     * @param g state of the game containing all necessary data
+     *
+     * @param g    state of the game containing all necessary data
      * @param args list of arguments that need to match the schema
      * @return true if action is consumed
      */
@@ -70,10 +73,10 @@ public abstract class Command {
         // prevalidate to ensure conversion will be successful
         for (int i = 0; i < schema.size(); i++) {
             // get type of schema
-            Type t = schema.get(i).type();
+            Class<?> t = schema.get(i).type();
 
             if (t == Integer.class) {
-                if (!isInteger(args[i])) {
+                if (isNotInteger(args[i])) {
                     return false;
                 }
             }
@@ -95,17 +98,65 @@ public abstract class Command {
 
     /**
      * checks if a string can be converted to an integer.
+     *
      * @param s is player Input
      * @return true if string is integer
      */
-    public boolean isInteger(String s) {
+    public boolean isNotInteger(String s) {
         try {
-            int i = Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException e) {
+            Integer.parseInt(s);
             return false;
+        } catch (NumberFormatException e) {
+            return true;
         }
     }
 
+    /**
+     * To ensure the command can be executed and satisfies all requirements.
+     *
+     * @param g    game state
+     * @param args parsed arguments
+     * @return true if it can be executed safely
+     */
+    public boolean preValidate(GameState g, String[] args) {
+        return true;
+    }
 
+    /**
+     * Wrapper of command with already parsed arguments.
+     *
+     * @param cmd  parsed command
+     * @param args parsed arguments
+     */
+    public record ParsedCommand(Command cmd, String[] args) {
+
+        /**
+         * Executes the wrapper.
+         *
+         * @param g current state of the game
+         * @return true if action was consumed
+         */
+        public boolean execute(GameState g) {
+            return cmd.execute(g, args);
+        }
+
+        /**
+         * Validates the wrapper by passing the parsed arguments and the game state to command.
+         *
+         * @param g current state of the game
+         * @return true if command is valid
+         */
+        public boolean preValidate(GameState g) {
+            return cmd.preValidate(g, args);
+        }
+
+        /**
+         * Gets the name of the action.
+         * @return keyword
+         */
+        public String getKeyWord() {
+            return cmd.getKeyword();
+        }
+
+    }
 }
