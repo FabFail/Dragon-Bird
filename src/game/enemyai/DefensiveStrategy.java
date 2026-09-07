@@ -86,7 +86,7 @@ public class DefensiveStrategy implements Strategy {
     }
 
     private String retreatPolicy(GameState g) {
-        if (g.getAi().getHorizontalPosition() == HorizontalPosition.RETREATED) {
+        if (g.getAi().getHorizontalPosition() == HorizontalPosition.FORWARD) {
             return Actions.MOVE_RETREAT.getCommandString();
         }
 
@@ -103,7 +103,11 @@ public class DefensiveStrategy implements Strategy {
             return null;
         }
 
-        List<Card> usableEffectCards = getUsableEffectCards(hand, availableCardCost + minLeftOverCardCost);
+        List<Card> usableEffectCards = getUsableEffectCards(hand, availableCardCost - minLeftOverCardCost);
+
+        if (usableEffectCards.isEmpty()) {
+            return null;
+        }
 
         return usableEffectCards.getFirst().getName();
     }
