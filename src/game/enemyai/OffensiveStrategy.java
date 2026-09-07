@@ -83,14 +83,15 @@ public class OffensiveStrategy implements Strategy {
         Figure ai = g.getAi();
         int maxMissingCardCost = 6;
 
-        if (!ai.getStatManager().isPowerNapActive()) {
+        if (ai.getStatManager().isPowerNapActive()) {
             return null;
         }
 
         Card useableCard = g.getAi().getCardManager().getHand().stream()
                 .filter(c -> c.getType().isCombatCard())
+                .filter(card -> card.getValue() >= 15)
                 .filter(card -> card.getCost() <= ai.getStatManager().getCardCost()
-                        - maxMissingCardCost && card.getValue() < 15)
+                        + maxMissingCardCost)
                 .findFirst()
                 .orElse(null);
 
@@ -109,8 +110,8 @@ public class OffensiveStrategy implements Strategy {
         }
 
         Card useableCard = g.getAi().getCardManager().getHand().stream()
-                .filter(c -> c.getType().isCombatCard())
-                .filter(card -> card.getCost() <= ai.getStatManager().getCardCost() + minLeftOverCardCost)
+                .filter(c -> c.getType().isEffectCard())
+                .filter(card -> card.getCost() <= ai.getStatManager().getCardCost() - minLeftOverCardCost)
                 .findFirst()
                 .orElse(null);
         if (useableCard != null) {
@@ -142,10 +143,14 @@ public class OffensiveStrategy implements Strategy {
     private String moveForwardPolicy(GameState g) {
         Figure ai = g.getAi();
         Figure player = g.getPlayerAtTurn();
+
+        boolean hasCombatCard = ai.getCardManager().getHand().stream()
+                .anyMatch(c -> c.getType().isCombatCard());
+
         boolean canMoveForward = HorizontalPosition
                 .calculateDistance(ai.getHorizontalPosition(), player.getHorizontalPosition()) > 0;
 
-        if (g.getAi().getStatManager().isPowerNapActive() && canMoveForward) {
+        if (g.getAi().getStatManager().isPowerNapActive() && hasCombatCard && canMoveForward) {
             return Actions.MOVE_FORWARD.getCommandString();
         }
 
