@@ -163,7 +163,9 @@ public final class Game {
         g.printBoard();
 
         // Get actions first
+        g.setActivePlayer(attacker);
         FigureAction attackerAction = getFigureAction(attacker);
+        g.setActivePlayer(defender);
         FigureAction defenderAction = getFigureAction(defender);
         if (attackerAction == null || defenderAction == null) {
             return;
@@ -173,6 +175,7 @@ public final class Game {
         System.out.println("OK.");
 
         if (attackerAction.figure() == g.getPlayer() && Objects.equals(attackerAction.cmd().getKeyWord(), "smack")) {
+            g.setActivePlayer(attacker);
             Smack smackCommand = (Smack) attackerAction.cmd().getCommand();
             smackCommand.playMinigame(g);
         }
@@ -182,7 +185,6 @@ public final class Game {
         System.out.println(defender.getName() + "'s defense: " + defenderAction.cmd().getKeyWord());
 
         g.setActivePlayer(defenderAction.figure());
-
         defenderAction.cmd().execute(g);
         defender.tick();
 

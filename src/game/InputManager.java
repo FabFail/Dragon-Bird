@@ -7,11 +7,13 @@ import java.util.Scanner;
 
 /**
  * .
+ *
  * @author ulprv
  */
 public class InputManager {
     private final Scanner sc;
     private final List<String> userInput;
+
 
     /**
      * Creates the input manager that holds the IO Stream.
@@ -20,6 +22,27 @@ public class InputManager {
         this.sc = new Scanner(System.in);
         this.userInput = new ArrayList<>();
 
+        HandJob();
+    }
+
+    /**
+     * .
+     *
+     * @return next player console input
+     */
+    public String getNextPlayerInput() {
+        String input;
+        if (userInput.isEmpty()) {
+            input = sc.nextLine();
+        } else {
+            input = userInput.getFirst();
+            userInput.removeFirst();
+        }
+        System.out.println(input);
+        return input; //sc.nextLine();
+    }
+
+    private void mandatoryTest() {
         userInput.add("create fighter Player 100 100 100 100 100");
         userInput.add("create fighter Robot 100 100 100 100 10");
         userInput.add("set avatar Player P");
@@ -49,19 +72,36 @@ public class InputManager {
         userInput.add("move r");
     }
 
-    /**
-     * .
-     * @return next player console input
-     */
-    public String getNextPlayerInput() {
-        String input;
-        if (userInput.isEmpty()) {
-            input = sc.nextLine();
-        } else {
-            input = userInput.getFirst();
-            userInput.removeFirst();
-        }
-        return input; //sc.nextLine();
+    private void MyManThis() {
+        userInput.add("create fighter MyMan 100 10 10 10 9");
+        userInput.add("set avatar MyMan THIS");
+    }
+
+    private void activePlayerIsNull() {
+        userInput.add("create fighter Me 100 10 10 10 9");
+        userInput.add("create fighter Them 100 10 10 10 10");
+        userInput.add("set avatar Me P");
+        userInput.add("set avatar Them R");
+        userInput.add("create card ExpRegain regain 100 100 1");
+        userInput.add("create card Alert bas.defense 100 1");
+        userInput.add("set deck Me 1");
+        userInput.add("set deck Them 0");
+        userInput.add("start Me Them");
+        userInput.add("Alert");
+    }
+
+    private void HandJob() {
+        userInput.add("create fighter Me 100 10 10 10 9");
+        userInput.add("create fighter Them 100 10 10 10 10");
+        userInput.add("set avatar Me P");
+        userInput.add("set avatar Them R");
+        userInput.add("create card CheapRegain regain 100 1 2");
+        userInput.add("create card ExpRegain regain 100 100 1");
+        userInput.add("set deck Me 0");
+        userInput.add("set deck Them 1");
+        userInput.add("start Me Them");
+        userInput.add("chill");
+        userInput.add("hand");
     }
 
     /**

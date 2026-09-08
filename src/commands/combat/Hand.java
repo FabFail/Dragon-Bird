@@ -26,7 +26,7 @@ public class Hand extends Command {
     @Override
     protected boolean execute(GameState g, String[] args) {
         if (args.length > 0) {
-            IO.println("ERROR: Hand doesn't need any parameters");
+            System.out.println("ERROR: Hand doesn't need any parameters");
             return false;
         }
 
