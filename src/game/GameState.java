@@ -1,6 +1,7 @@
 package game;
 
 import figure.Figure;
+import figure.FigurePhase;
 
 import java.util.Random;
 
@@ -50,6 +51,9 @@ public class GameState {
      */
     public void endGame() {
         this.isRunning = false;
+        p.updatePhase(FigurePhase.GAME_OVER);
+        ai.updatePhase(FigurePhase.GAME_OVER);
+        printBoard();
     }
 
 

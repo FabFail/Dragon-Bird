@@ -14,8 +14,9 @@ public class Board {
 
     /**
      * Renders board on call.
+     *
      * @param player is the figure of the player
-     * @param ai is the figure of the AI
+     * @param ai     is the figure of the AI
      */
     public void printBoard(Figure player, Figure ai) {
         //line one
@@ -77,8 +78,18 @@ public class Board {
                 : BLANK.repeat(1) + napIndicator(ai) + BLANK.repeat(8))
                 : BLANK.repeat(10);
 
+        playerNap = hideDefeatedFigure(player, playerNap);
+        aiNap = hideDefeatedFigure(ai, aiNap);
+
         return String.format("%s    %s", playerNap, aiNap);
     }
+
+
+    private static String hideDefeatedFigure(Figure f, String toOverwrite) {
+
+        return f.getStatManager().getCurrentHP() <= 0 ? BLANK.repeat(12) :  toOverwrite;
+    }
+
 
     private static String napIndicator(Figure fig) {
         if (fig.getStatManager().getPowerNapTurnCount() > 1) {
@@ -101,6 +112,9 @@ public class Board {
                 : BLANK.repeat(7) + ai.getAvatar() + BLANK.repeat(2))
                 : BLANK.repeat(10);
 
+        playerAvatar = hideDefeatedFigure(player, playerAvatar);
+        aiAvatar = hideDefeatedFigure(ai, aiAvatar);
+
         return String.format("%s    %s", playerAvatar, aiAvatar);
     }
 
@@ -115,6 +129,9 @@ public class Board {
                 ? BLANK.repeat(6) + napIndicator(ai) + BLANK.repeat(3)
                 : BLANK.repeat(1) + napIndicator(ai) + BLANK.repeat(8))
                 : BLANK.repeat(10);
+
+        playerNap = hideDefeatedFigure(player, playerNap);
+        aiNap = hideDefeatedFigure(ai, aiNap);
 
         return String.format("%s    %s", playerNap, aiNap);
     }
@@ -131,6 +148,8 @@ public class Board {
                 : BLANK.repeat(7) + ai.getAvatar() + BLANK.repeat(2))
                 : BLANK.repeat(10);
 
+        playerAvatar = hideDefeatedFigure(player, playerAvatar);
+        aiAvatar = hideDefeatedFigure(ai, aiAvatar);
 
         return String.format("%s    %s", playerAvatar, aiAvatar);
     }

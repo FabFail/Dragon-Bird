@@ -12,7 +12,11 @@ public enum FigurePhase {
     /**
      * .
      */
-    ATTACK("*");
+    ATTACK("*"),
+    /**
+     * .
+     */
+    GAME_OVER(" ");
 
     private final String symbol;
 

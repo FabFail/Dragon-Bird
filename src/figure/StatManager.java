@@ -5,19 +5,21 @@ import java.util.List;
 
 /**
  * .
+ *
  * @author ulprv
  */
 public class StatManager {
     private FigureData fd;
-
-    private Buff powerNap;
-    private int actionsSincePowerNap = 0;
     private final List<Buff> buffs;
     private int currentHP;
     private int cardCost;
 
+
+    private int turnsRemaining = 0;
+
     /**
      * creates the stat manager module of a figure.
+     *
      * @param fd figure data
      */
     public StatManager(FigureData fd) {
@@ -30,6 +32,7 @@ public class StatManager {
 
     /**
      * .
+     *
      * @param fd figure data
      */
     public void setData(FigureData fd) {
@@ -41,31 +44,22 @@ public class StatManager {
      * .
      */
     public void startPowerNap() {
-        this.powerNap = new Buff(
-                4,
-                4,
-                0,
-                0,
-                5);
-
-        actionsSincePowerNap = -1; // as the first tick comes right after powerNap
+        this.turnsRemaining = 5;
     }
 
 
     /**
      * .
+     *
      * @return power nap turn count
      */
     public int getPowerNapTurnCount() {
-        if (this.powerNap == null) {
-            return 0;
-        }
-
-        return this.powerNap.getTurnsRemaining();
+        return this.turnsRemaining;
     }
 
     /**
      * .
+     *
      * @param buff strengthen a stat
      */
     public void applyBuff(Buff buff) {
@@ -74,6 +68,7 @@ public class StatManager {
 
     /**
      * get speed value.
+     *
      * @return speed
      */
     public int getSpeed() {
@@ -82,27 +77,30 @@ public class StatManager {
 
     /**
      * get power value.
+     *
      * @return power
      */
     public int getPower() {
-        int powerNapBonus = (powerNap == null || powerNap.getTurnsRemaining() < 0) ? 0 : powerNap.getPowerBonus();
+        int powerNapBonus = turnsRemaining > 0 ? 4 : 0;
 
         return this.fd.power() + powerNapBonus + buffs.stream().mapToInt(Buff::getPowerBonus).sum();
     }
 
     /**
      * .
+     *
      * @return energy
      */
     public int getEnergy() {
-        int powerNapBonus = (powerNap == null || powerNap.getTurnsRemaining() < 0) ? 0 : powerNap.getEnergyBonus();
-        return this.fd.energy()
-                + powerNapBonus
-                + buffs.stream().mapToInt(Buff::getEnergyBonus).sum();
+        int powerNapBonus = turnsRemaining > 0 ? 4 : 0;
+
+        return this.fd.energy() + powerNapBonus + buffs.stream().mapToInt(Buff::getEnergyBonus).sum();
+
     }
 
     /**
      * .
+     *
      * @return defense
      */
     public int getDefense() {
@@ -111,6 +109,7 @@ public class StatManager {
 
     /**
      * .
+     *
      * @return current hp
      */
     public int getCurrentHP() {
@@ -122,18 +121,12 @@ public class StatManager {
      * updates buffs after each action.
      */
     public void tick() {
-        actionsSincePowerNap++;
-        if (this.powerNap != null) {
-            this.powerNap.tick();
-
-            if (this.powerNap.getTurnsRemaining() == 0) {
-                this.powerNap = null;
-            }
-        }
+        this.turnsRemaining--;
     }
 
     /**
      * reduces current hp.
+     *
      * @param amount is taken from current hp.
      */
     public void takeDamage(int amount) {
@@ -143,6 +136,7 @@ public class StatManager {
 
     /**
      * increases current hp, but cannot exceed max hp.
+     *
      * @param amount is added to current hp.
      */
     public void regainHealth(int amount) {
@@ -153,15 +147,17 @@ public class StatManager {
 
     /**
      * checks whether a power nap is active.
+     *
      * @return true if active
      */
     public boolean isPowerNapActive() {
-        return (this.powerNap != null && this.powerNap.getTurnsRemaining() > 0);
+        return this.turnsRemaining > 0;
 
     }
 
     /**
      * updates current card cost resource.
+     *
      * @param amount is added or subtracted from card cost
      */
     public void updateCardCost(int amount) {
@@ -170,6 +166,7 @@ public class StatManager {
 
     /**
      * .
+     *
      * @return card cost resource
      */
     public int getCardCost() {
@@ -178,6 +175,7 @@ public class StatManager {
 
     /**
      * provides information about figure data stats.
+     *
      * @return stats
      */
     public FigureData getFigureData() {

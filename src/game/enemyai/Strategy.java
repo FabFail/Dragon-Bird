@@ -3,7 +3,7 @@ package game.enemyai;
 import game.GameState;
 
 /**
- * Necessary functions to ensure an AI Strategy is valid
+ * Necessary functions to ensure an AI Strategy is valid.
  * @author ulprv
  */
 public interface Strategy {

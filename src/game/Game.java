@@ -164,9 +164,16 @@ public final class Game {
         // Get actions first
         FigureAction attackerAction = getFigureAction(attacker);
         FigureAction defenderAction = getFigureAction(defender);
+        if (attackerAction == null || defenderAction == null) {
+            return;
+        }
 
-        if (attackerAction.figure() == g.getPlayer() && !Objects.equals(attackerAction.cmd().getKeyWord(), "smack")) {
-            System.out.println("OK.");
+
+        System.out.println("OK.");
+
+        if (attackerAction.figure() == g.getPlayer() && Objects.equals(attackerAction.cmd().getKeyWord(), "smack")) {
+            Smack smackCommand = (Smack) attackerAction.cmd().getCommand();
+            smackCommand.playMinigame(g);
         }
 
 
@@ -174,8 +181,8 @@ public final class Game {
         System.out.println(defender.getName() + "'s defense: " + defenderAction.cmd().getKeyWord());
 
         g.setActivePlayer(defenderAction.figure());
+
         defenderAction.cmd().execute(g);
-        checkGameEnd();
         defender.tick();
 
         g.setActivePlayer(attackerAction.figure());
@@ -185,6 +192,7 @@ public final class Game {
         defender.endDefensePhase();
         checkGameEnd();
     }
+
 
     private boolean validateAction(FigureAction figureAction) {
         if (figureAction == null || figureAction.cmd() == null) {
@@ -250,9 +258,17 @@ public final class Game {
      * Checks the end of Game condition and ends game if condition is true.
      */
     public void checkGameEnd() {
-        if (g.getPlayer().getStatManager().getCurrentHP() <= 0 || g.getAi().getStatManager().getCurrentHP() <= 0) {
+
+        if (g.getPlayer().getStatManager().getCurrentHP() <= 0) {
             g.endGame();
+            IO.println(g.getAi().getName() + " wins!");
         }
+
+        if (g.getAi().getStatManager().getCurrentHP() <= 0) {
+            g.endGame();
+            IO.println(g.getPlayer().getName() + " wins!");
+        }
+
     }
 
     /**

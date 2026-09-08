@@ -182,9 +182,10 @@ public class UseCard extends Command {
                 attacker.getHorizontalPosition(),
                 defender.getHorizontalPosition());
 
-        int atkStat = isDistance ? attacker.getStatManager().getEnergy() : attacker.getStatManager().getPower();
-        int defStat = defender.getStatManager().getDefense();
 
+        int atkStat = isDistance ? attacker.getStatManager().getEnergy() : attacker.getStatManager().getPower();
+
+        int defStat = defender.getStatManager().getDefense();
         double rawDmg = (double) (dmg * (atkStat + bonusAtk) * distanceFactor) / (defStat + bonusDef);
         int finalDamage = (int) Math.round(rawDmg);
 

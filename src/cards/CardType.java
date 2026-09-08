@@ -94,8 +94,7 @@ public enum CardType {
      */
     public boolean isCombatCard() {
         return this == CardType.MELEE
-                || this == CardType.DISTANCE
-                || this == CardType.DAMAGE;
+                || this == CardType.DISTANCE;
     }
 
     /**

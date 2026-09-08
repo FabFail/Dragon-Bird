@@ -158,5 +158,14 @@ public abstract class Command {
             return cmd.getKeyword();
         }
 
+        /**
+         * unwraps parsed command to get access to concrete functions.
+         *
+         * @return unwrapped command
+         */
+        public Command getCommand() {
+            return this.cmd();
+        }
+
     }
 }

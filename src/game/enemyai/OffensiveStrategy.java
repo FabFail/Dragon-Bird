@@ -43,6 +43,7 @@ public class OffensiveStrategy implements Strategy {
 
     private String getOffenseAction(GameState g) {
         String result;
+
         result = useOffenseCardPolicy(g);
         if (result != null) {
             return result;
@@ -68,10 +69,12 @@ public class OffensiveStrategy implements Strategy {
 
     private String useOffenseCardPolicy(GameState g) {
         Figure ai = g.getAi();
+        boolean lastRoundOfPowerNap = ai.getStatManager().getPowerNapTurnCount() == 1;
+
         Card strongestCombatCard = getStrongestCombatCard(g.getAi().getCardManager().getHand(),
                 ai.getStatManager().getCardCost());
 
-        if (ai.getStatManager().isPowerNapActive() && strongestCombatCard != null) {
+        if (lastRoundOfPowerNap && strongestCombatCard != null) {
             g.changeAIToDef(true);
             return strongestCombatCard.getName();
         }
@@ -142,7 +145,9 @@ public class OffensiveStrategy implements Strategy {
 
     private String moveForwardPolicy(GameState g) {
         Figure ai = g.getAi();
-        Figure player = g.getPlayerAtTurn();
+        Figure player = g.getPlayer();
+
+        boolean isAfterPowerNap = ai.getStatManager().getPowerNapTurnCount() == 2;
 
         boolean hasCombatCard = ai.getCardManager().getHand().stream()
                 .anyMatch(c -> c.getType().isCombatCard());
@@ -150,7 +155,7 @@ public class OffensiveStrategy implements Strategy {
         boolean canMoveForward = HorizontalPosition
                 .calculateDistance(ai.getHorizontalPosition(), player.getHorizontalPosition()) > 0;
 
-        if (g.getAi().getStatManager().isPowerNapActive() && hasCombatCard && canMoveForward) {
+        if (isAfterPowerNap && hasCombatCard && canMoveForward) {
             return Actions.MOVE_FORWARD.getCommandString();
         }
 
@@ -161,6 +166,7 @@ public class OffensiveStrategy implements Strategy {
         Figure ai = g.getAi();
         Card strongestCombatCard = getStrongestCombatCard(ai.getCardManager().getHand(),
                 ai.getStatManager().getCardCost());
+
         if (strongestCombatCard == null) {
             return null;
         }

@@ -13,6 +13,7 @@ import game.InputManager;
  */
 public class Smack extends Command {
     private final InputManager inputManager;
+    private int attackPower;
 
     /**
      * Creates the combat command and sets the keyword and optionally a schema.
@@ -31,24 +32,26 @@ public class Smack extends Command {
         Figure defender = g.getPassiveFigure();
 
 
-        int bonusAttackPower;
-        if (attacker == g.getPlayer()) {
-            bonusAttackPower = playMinigame(g);
-        } else {
-            bonusAttackPower = 4;
+        if (attacker == g.getAi()) {
+            this.attackPower = g.getAi().getStatManager().isPowerNapActive() ? 4 : 3;
         }
 
         if (defender.getCombatDataManager().isBaseDefenseActive()) {
             return true;
         }
 
-        defender.getStatManager().takeDamage(bonusAttackPower);
-        attacker.getStatManager().updateCardCost(bonusAttackPower);
+        defender.getStatManager().takeDamage(attackPower);
+        System.out.println(defender.getName() + " takes " + this.attackPower + " damage!");
+        attacker.getStatManager().updateCardCost(attackPower);
 
         return true;
     }
 
-    private int playMinigame(GameState g) {
+    /**
+     * plays minigame to decide over damage dealt.
+     * @param g game state
+     */
+    public void playMinigame(GameState g) {
         System.out.println("Smack Math Challenge!");
 
         int bonusAttackPower = 0;
@@ -92,10 +95,10 @@ public class Smack extends Command {
         if (failed) {
             System.out.println("Oh no!");
         } else {
-            System.out.println("Correct");
+            System.out.println("Correct!");
         }
 
-        return bonusAttackPower;
+        this.attackPower = bonusAttackPower;
     }
 
     @Override
