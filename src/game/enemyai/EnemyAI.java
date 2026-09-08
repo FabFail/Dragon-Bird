@@ -9,6 +9,8 @@ import game.GameState;
  */
 public class EnemyAI {
     private Strategy currentStrategy;
+    private boolean aiDefChange = false;
+    private boolean aiOffChange = false;
 
     /**
      * Creates the enemy AI and sets its default behavior.
@@ -41,19 +43,54 @@ public class EnemyAI {
     }
 
     private void checkOffensiveStrategy(GameState g) {
-        if (g.isAIGoingOff()) {
+        if (isAIGoingOff()) {
             this.currentStrategy = new OffensiveStrategy();
-            System.out.println("DEBUG: Change Strategy to Offense");
-            g.changeAIToDef(false); // resets the flag to change strategy
+
+            changeAIToDef(false); // resets the flag to change strategy
         }
 
     }
 
     private void checkDefensiveStrategy(GameState g) {
-        if (g.isAIGoingDef()) {
+        if (isAIGoingDef()) {
             this.currentStrategy = new DefensiveStrategy();
-            System.out.println("DEBUG: Change Strategy to Defense");
-            g.changeAIToOff(false); // resets flag to change strategy
+            changeAIToOff(false); // resets flag to change strategy
         }
+    }
+
+    /**
+     * gets information about whether enemy needs to change its strategy to offensive.
+     *
+     * @return true if AI should change its strategy
+     */
+    public boolean isAIGoingOff() {
+        return aiDefChange;
+    }
+
+    /**
+     * sets information about whether enemy needs to change its strategy to offensive.
+     *
+     * @param aiDefChange determines whether AI should change its strategy
+     */
+    public void changeAIToOff(boolean aiDefChange) {
+        this.aiDefChange = aiDefChange;
+    }
+
+    /**
+     * gets information about whether enemy needs to change its strategy to defensive.
+     *
+     * @return true if AI should change its strategy
+     */
+    public boolean isAIGoingDef() {
+        return this.aiOffChange;
+    }
+
+    /**
+     * sets information about whether enemy needs to change its strategy to defensive.
+     *
+     * @param aiOffChange determines whether AI should change its strategy
+     */
+    public void changeAIToDef(boolean aiOffChange) {
+        this.aiOffChange = aiOffChange;
     }
 }

@@ -40,16 +40,16 @@ public class Start extends Command {
         Figure aiFigure = dbInstance.getFigureRepository().getFigureByName(aiName);
 
         if (playerFigure == null || aiFigure == null) {
-            IO.println("ERROR: No Figures of these names exist");
+            System.out.println("ERROR: No Figures of these names exist");
             return false;
         }
 
         if (playerFigure.getCardManager().hasNoDeck() || aiFigure.getCardManager().hasNoDeck()) {
-            IO.println("ERROR: Figures have no decks assigned to them");
+            System.out.println("ERROR: Figures have no decks assigned to them");
         }
 
         g.startGame(playerFigure, aiFigure);
-        IO.println(playerName + " and " + aiName + " battle!");
+        System.out.println(playerName + " and " + aiName + " battle!");
         return true;
     }
 }

@@ -18,7 +18,7 @@ public class Quit extends Command {
 
     @Override
     protected boolean execute(GameState g, String[] args) {
-        g.endGame();
+        g.quitGame();
         return true;
     }
 }

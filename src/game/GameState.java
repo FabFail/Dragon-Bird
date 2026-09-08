@@ -1,7 +1,7 @@
 package game;
 
 import figure.Figure;
-import figure.FigurePhase;
+import game.enemyai.EnemyAI;
 
 import java.util.Random;
 
@@ -21,6 +21,7 @@ public class GameState {
     private Figure playerAtTurn; // tracks figure that is taking action
 
     private final Board board;
+    private EnemyAI enemyAI = new EnemyAI();
     private boolean aiDefChange = false;
     private boolean aiOffChange = false;
 
@@ -34,6 +35,7 @@ public class GameState {
         this.turnNumber = 0;
         this.phase = GamePhase.SETUP;
         this.board = new Board();
+        this.enemyAI = new EnemyAI();
         this.rnd = rnd;
     }
 
@@ -47,13 +49,21 @@ public class GameState {
     }
 
     /**
-     * ends the game.
+     * Terminates the entire application e.g. via Quit command
      */
-    public void endGame() {
+    public void quitGame() {
         this.isRunning = false;
-        p.updatePhase(FigurePhase.GAME_OVER);
-        ai.updatePhase(FigurePhase.GAME_OVER);
-        printBoard();
+    }
+
+    /**
+     * End current combat match.
+     */
+    public void endMatch() {
+        this.phase = GamePhase.SETUP;
+        this.turnNumber = 0;
+        this.p = null;
+        this.ai = null;
+        this.enemyAI = new EnemyAI();
     }
 
 
@@ -175,38 +185,12 @@ public class GameState {
     }
 
     /**
-     * gets information about whether enemy needs to change its strategy to offensive.
-     *
-     * @return true if AI should change its strategy
+     * Grants access to the EnemyAI that decides over actions.
+     * @return enemy AI
      */
-    public boolean isAIGoingOff() {
-        return aiDefChange;
+    public EnemyAI getEnemyAI() {
+        return this.enemyAI;
     }
 
-    /**
-     * sets information about whether enemy needs to change its strategy to offensive.
-     *
-     * @param aiDefChange determines whether AI should change its strategy
-     */
-    public void changeAIToOff(boolean aiDefChange) {
-        this.aiDefChange = aiDefChange;
-    }
 
-    /**
-     * gets information about whether enemy needs to change its strategy to defensive.
-     *
-     * @return true if AI should change its strategy
-     */
-    public boolean isAIGoingDef() {
-        return this.aiOffChange;
-    }
-
-    /**
-     * sets information about whether enemy needs to change its strategy to defensive.
-     *
-     * @param aiOffChange determines whether AI should change its strategy
-     */
-    public void changeAIToDef(boolean aiOffChange) {
-        this.aiOffChange = aiOffChange;
-    }
 }

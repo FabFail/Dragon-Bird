@@ -75,7 +75,7 @@ public class OffensiveStrategy implements Strategy {
                 ai.getStatManager().getCardCost());
 
         if (lastRoundOfPowerNap && strongestCombatCard != null) {
-            g.changeAIToDef(true);
+            g.getEnemyAI().changeAIToDef(true);
             return strongestCombatCard.getName();
         }
 

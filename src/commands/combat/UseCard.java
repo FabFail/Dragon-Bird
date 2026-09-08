@@ -97,7 +97,7 @@ public class UseCard extends Command {
         if (activePlayer == g.getPlayer() && (card.getType() == CardType.DAMAGE
                 || card.getType() == CardType.MELEE
                 || card.getType() == CardType.DISTANCE) && card.getValue() >= 15) {
-            g.changeAIToOff(true);
+            g.getEnemyAI().changeAIToOff(true);
         }
 
         // accuracy check

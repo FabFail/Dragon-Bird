@@ -21,7 +21,6 @@ import commands.combat.Chill;
 import commands.combat.Move;
 import figure.Figure;
 import figure.FigurePhase;
-import game.enemyai.EnemyAI;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -39,8 +38,6 @@ public final class Game {
     private CommandProcessor combatCmdProcessor;
     private final InputManager in;
 
-    private final EnemyAI ai;
-
 
     /**
      * Creates the Game with all its subsystems.
@@ -51,7 +48,6 @@ public final class Game {
         Random rnd = new Random(seed);
         this.g = new GameState(rnd);
         this.in = new InputManager();
-        this.ai = new EnemyAI();
         initCommandProcessors();
 
     }
@@ -89,22 +85,22 @@ public final class Game {
      */
     public void run() {
         try {
-            runSetupLoop();
-
-            if (this.g.isRunning()) {
-                runCombatLoop();
+            printSetupCommand();
+            while (this.g.isRunning()) {
+                if (this.g.getGamePhase() == GamePhase.SETUP) {
+                    runSetupLoop();
+                }
+                if (this.g.isRunning() && this.g.getGamePhase() == GamePhase.COMBAT) {
+                    runCombatLoop();
+                }
             }
-
         } finally {
             this.in.close();
         }
     }
 
-    /**
-     * Handles all actions before the main game loop is starting
-     */
-    private void runSetupLoop() {
-        IO.println("Use one of the following commands: create fighter, "
+    private void printSetupCommand() {
+        System.out.println("Use one of the following commands: create fighter, "
                 + "create card, "
                 + "list fighter, "
                 + "list card, "
@@ -113,7 +109,12 @@ public final class Game {
                 + "list deck, "
                 + "start, "
                 + "quit");
+    }
 
+    /**
+     * Handles all actions before the main game loop is starting
+     */
+    private void runSetupLoop() {
         while (this.g.getGamePhase() == GamePhase.SETUP && g.isRunning()) {
             String input = this.in.getNextPlayerInput();
 
@@ -126,7 +127,7 @@ public final class Game {
      * Handles sequence of combat's phase game loop
      */
     private void runCombatLoop() {
-        while (g.isRunning()) {
+        while (g.isRunning() && g.getGamePhase() == GamePhase.COMBAT) {
             g.nextTurn();
 
             boolean playerIsFaster = g.getPlayer().getStatManager().getSpeed() > g.getAi().getStatManager().getSpeed();
@@ -135,13 +136,13 @@ public final class Game {
 
             // first half phase
             turnSequence(fastFigure, slowFigure);
-            if (!g.isRunning()) {
+            if (!g.isRunning() || g.getGamePhase() != GamePhase.COMBAT) {
                 break;
             }
 
             // second half phase
             turnSequence(slowFigure, fastFigure);
-            if (!g.isRunning()) {
+            if (!g.isRunning() || g.getGamePhase() != GamePhase.COMBAT) {
                 break;
             }
         }
@@ -212,7 +213,7 @@ public final class Game {
     }
 
     private FigureAction getAIAction() {
-        String enemyInput = ai.getNextAction(g);
+        String enemyInput = g.getEnemyAI().getNextAction(g);
         Optional<Command.ParsedCommand> result = combatCmdProcessor.parseCommand(g, enemyInput);
         return result.map(parsedCommand -> new FigureAction(g.getAi(), parsedCommand)).orElse(null);
     }
@@ -260,15 +261,22 @@ public final class Game {
     public void checkGameEnd() {
 
         if (g.getPlayer().getStatManager().getCurrentHP() <= 0) {
-            g.endGame();
-            IO.println(g.getAi().getName() + " wins!");
+            printLastBoardState();
+            System.out.println(g.getAi().getName() + " wins!");
+            g.endMatch();
+        } else if (g.getAi().getStatManager().getCurrentHP() <= 0) {
+            printLastBoardState();
+            System.out.println(g.getPlayer().getName() + " wins!");
+            g.endMatch();
+
         }
 
-        if (g.getAi().getStatManager().getCurrentHP() <= 0) {
-            g.endGame();
-            IO.println(g.getPlayer().getName() + " wins!");
-        }
+    }
 
+    private void printLastBoardState() {
+        g.getPlayer().updatePhase(FigurePhase.GAME_OVER);
+        g.getAi().updatePhase(FigurePhase.GAME_OVER);
+        g.printBoard();
     }
 
     /**

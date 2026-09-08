@@ -47,7 +47,6 @@ public class InputManager {
         userInput.add("109");
         userInput.add("hand");
         userInput.add("move r");
-        userInput.add("quit");
     }
 
     /**
