@@ -5,6 +5,7 @@ import game.GameState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * base class of a command.
@@ -123,6 +124,15 @@ public abstract class Command {
     }
 
     /**
+     * Rolls for accuracy to see whether an action hits or fails.
+     * @param rnd seeded random object which determines the accuracy roll
+     * @return true if hits.
+     */
+    public boolean rollAccuracy(Random rnd) {
+        return true;
+    }
+
+    /**
      * Wrapper of command with already parsed arguments.
      *
      * @param cmd  parsed command
@@ -152,6 +162,7 @@ public abstract class Command {
 
         /**
          * Gets the name of the action.
+         *
          * @return keyword
          */
         public String getKeyWord() {
@@ -166,6 +177,6 @@ public abstract class Command {
         public Command getCommand() {
             return this.cmd();
         }
-
     }
+
 }

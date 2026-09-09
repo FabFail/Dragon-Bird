@@ -12,7 +12,7 @@ void main(String[] args) {
     //    System.out.println("ERROR: invalid amount of arguments");
     //    return;
     //}
-    int seed = 69;
+    int seed = 26;
     Game game = new Game(seed);
     game.run();
     /**

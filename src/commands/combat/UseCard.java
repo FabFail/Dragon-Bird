@@ -10,6 +10,8 @@ import figure.poisition.VerticalPosition;
 import game.GameState;
 import figure.Buff;
 
+import java.util.Random;
+
 /**
  * handles validation and execution when using a card.
  *
@@ -17,6 +19,7 @@ import figure.Buff;
  */
 public class UseCard extends Command {
     private final Card card;
+    private boolean doesHit = true;
 
     /**
      * Creates the combat command and sets the keyword and optionally a schema.
@@ -31,10 +34,18 @@ public class UseCard extends Command {
     @Override
     public boolean execute(GameState g, String[] args) {
         Figure activePlayer = g.getPlayerAtTurn();
+
         activePlayer.getCardManager().getHand().remove(card);
+        activePlayer.getStatManager().updateCardCost(-card.getCost());
 
+        if (activePlayer == g.getPlayer()
+                && (card.getType().isCombatCard())
+                && card.getValue() >= 15) {
+            g.getEnemyAI().changeAIToOff(true);
+        }
 
-        if (!checkAccuracy(g)) {
+        // accuracy check
+        if (!doesHit) {
             return true;
         }
 
@@ -90,19 +101,11 @@ public class UseCard extends Command {
         return activePlayer.getStatManager().getCardCost() >= card.getCost();
     }
 
-    private boolean checkAccuracy(GameState g) {
-        Figure activePlayer = g.getPlayerAtTurn();
-        activePlayer.getStatManager().updateCardCost(-card.getCost());
-
-        if (activePlayer == g.getPlayer() && (card.getType() == CardType.DAMAGE
-                || card.getType() == CardType.MELEE
-                || card.getType() == CardType.DISTANCE) && card.getValue() >= 15) {
-            g.getEnemyAI().changeAIToOff(true);
-        }
-
-        // accuracy check
-        int accuracyRoll = g.getAccuracyRoll();
-        return accuracyRoll < card.getAccuracy();
+    @Override
+    public boolean rollAccuracy(Random rnd) {
+        int accuracyRoll = rnd.nextInt(0, 100);
+        this.doesHit = accuracyRoll < card.getAccuracy();
+        return doesHit;
     }
 
     private boolean applyStatBuff(GameState g) {

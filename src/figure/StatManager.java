@@ -15,7 +15,7 @@ public class StatManager {
     private int cardCost;
 
 
-    private int turnsRemaining = 0;
+    private int actionsRemaining = 0;
 
     /**
      * creates the stat manager module of a figure.
@@ -44,7 +44,7 @@ public class StatManager {
      * .
      */
     public void startPowerNap() {
-        this.turnsRemaining = 5;
+        this.actionsRemaining = 5;
     }
 
 
@@ -53,8 +53,8 @@ public class StatManager {
      *
      * @return power nap turn count
      */
-    public int getPowerNapTurnCount() {
-        return this.turnsRemaining;
+    public int getRemainingPowerNapActions() {
+        return this.actionsRemaining;
     }
 
     /**
@@ -81,7 +81,7 @@ public class StatManager {
      * @return power
      */
     public int getPower() {
-        int powerNapBonus = turnsRemaining > 0 ? 4 : 0;
+        int powerNapBonus = actionsRemaining > 0 ? 4 : 0;
 
         return this.fd.power() + powerNapBonus + buffs.stream().mapToInt(Buff::getPowerBonus).sum();
     }
@@ -92,7 +92,7 @@ public class StatManager {
      * @return energy
      */
     public int getEnergy() {
-        int powerNapBonus = turnsRemaining > 0 ? 4 : 0;
+        int powerNapBonus = actionsRemaining > 0 ? 4 : 0;
 
         return this.fd.energy() + powerNapBonus + buffs.stream().mapToInt(Buff::getEnergyBonus).sum();
 
@@ -121,7 +121,7 @@ public class StatManager {
      * updates buffs after each action.
      */
     public void tick() {
-        this.turnsRemaining--;
+        this.actionsRemaining--;
     }
 
     /**
@@ -151,7 +151,7 @@ public class StatManager {
      * @return true if active
      */
     public boolean isPowerNapActive() {
-        return this.turnsRemaining > 0;
+        return this.actionsRemaining > 0;
 
     }
 
@@ -180,5 +180,12 @@ public class StatManager {
      */
     public FigureData getFigureData() {
         return this.fd;
+    }
+
+    public void reset() {
+        this.currentHP = this.fd.health();
+        this.cardCost = 10;
+        this.buffs.clear();
+        this.actionsRemaining = 0;
     }
 }

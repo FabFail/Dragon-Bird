@@ -6,6 +6,8 @@ import figure.FigurePhase;
 import game.GameState;
 import game.InputManager;
 
+import java.util.Random;
+
 /**
  * handles validation and execution of a base attack.
  *
@@ -49,29 +51,31 @@ public class Smack extends Command {
 
     /**
      * plays minigame to decide over damage dealt.
-     * @param g game state
+     *
+     * @param actor the figure doing the action
+     * @param rnd object to draw whole numbers
      */
-    public void playMinigame(GameState g) {
+    public void playMinigame(Figure actor, Random rnd) {
         System.out.println("Smack Math Challenge!");
 
         int bonusAttackPower = 0;
 
         int partialSsum = 0;
 
-        int sequenceLength = g.getPlayerAtTurn().getStatManager().isPowerNapActive() ? 4 : 3;
+        int sequenceLength = actor.getStatManager().isPowerNapActive() ? 4 : 3;
         int[] rnds = new int[sequenceLength];
 
         for (int i = 0; i < sequenceLength; i++) {
-            rnds[i] = g.drawWholeNumber();
+            rnds[i] = rnd.nextInt(1, 100);
         }
 
         for (int i = 0; i < rnds.length; i++) {
             if (i > 0) {
-                IO.print(",");
+                System.out.print(",");
             }
-            IO.print(rnds[i]);
+            System.out.print(rnds[i]);
         }
-        IO.println();
+        System.out.println();
 
 
         int j = 0;

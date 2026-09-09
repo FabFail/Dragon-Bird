@@ -22,7 +22,8 @@ public class InputManager {
         this.sc = new Scanner(System.in);
         this.userInput = new ArrayList<>();
 
-        HandJob();
+        //Obliterate();
+        correctFailOrder();
     }
 
     /**
@@ -101,6 +102,87 @@ public class InputManager {
         userInput.add("set deck Them 1");
         userInput.add("start Me Them");
         userInput.add("chill");
+        userInput.add("hand");
+    }
+
+    private void EnergyUp() {
+        userInput.add("create fighter Hero 200 10 10 10 9");
+        userInput.add("create fighter Opponent 200 10 10 10 10");
+        userInput.add("set avatar Hero H");
+        userInput.add("set avatar Opponent O");
+        userInput.add("create card EnergyUp energy+ 100 3 2");
+        userInput.add("create card Throw distance 100 6 20");
+        userInput.add("create card Heal regain 100 1 5");
+        userInput.add("create card Obliterate damage 100 1 500");
+        userInput.add("list card");
+        userInput.add("set deck Hero 3");
+        userInput.add("set deck Opponent 0 1 2");
+        userInput.add("start Hero Opponent");
+
+        userInput.add("move f");
+        userInput.add("smack");
+        userInput.add("1");
+        userInput.add("move f");
+        userInput.add("smack");
+        userInput.add("1");
+        userInput.add("chill");
+        userInput.add("smack");
+        userInput.add("40");
+        userInput.add("49");
+        userInput.add("98");
+        userInput.add("chill");
+        userInput.add("Obliterate");
+    }
+
+    private void correctFailOrder() {
+        userInput.add("create fighter Hero 200 10 10 10 9");
+        userInput.add("create fighter Opponent 200 10 10 10 10");
+        userInput.add("set avatar Hero H");
+        userInput.add("set avatar Opponent O");
+        userInput.add("create card Obliterate damage 70 3 300");
+        userInput.add("create card Hit melee 50 1 10");
+        userInput.add("create card Scam regain 5 100 1");
+        userInput.add("set deck Hero 0 0 1 1");
+        userInput.add("set deck Opponent 2");
+        userInput.add("start Hero Opponent");
+
+        userInput.add("move f");
+        userInput.add("Hit");
+    }
+
+    private void Obliterate() {
+        userInput.add("create fighter Hero 50 10 10 10 10");
+        userInput.add("create fighter Level1 3 5 3 2 9");
+        userInput.add("create fighter Level2 10 10 10 10 9");
+        userInput.add("create fighter Level3 30 10 10 10 10");
+        userInput.add("set avatar Hero H");
+        userInput.add("set avatar Level1 1");
+        userInput.add("set avatar Level2 2");
+        userInput.add("set avatar Level3 3");
+        userInput.add("create card Obliterate damage 70 3 300");
+        userInput.add("create card Hit melee 50 1 10");
+        userInput.add("create card Throw distance 90 1 20");
+        userInput.add("create card Scam regain 5 100 1");
+        userInput.add("set deck Hero 0 0 1 1 1 2 2 2");
+        userInput.add("set deck Level1 3");
+        userInput.add("set deck Level2 2");
+        userInput.add("set deck Level3 0 2");
+
+// Game 1: Hero vs Level1
+        userInput.add("start Hero Level1");
+        userInput.add("smack");
+        userInput.add("25");
+        userInput.add("82");
+        userInput.add("137");
+
+// Game 2: Hero vs Level2
+        userInput.add("start Hero Level2");
+        userInput.add("hand");
+        userInput.add("Hit");
+
+// Game 3: Hero vs Level3
+        userInput.add("start Hero Level3");
+        userInput.add("move f");
         userInput.add("hand");
     }
 

@@ -37,6 +37,7 @@ public final class Game {
     private CommandProcessor setupCmdProcessor;
     private CommandProcessor combatCmdProcessor;
     private final InputManager in;
+    private Random rnd;
 
 
     /**
@@ -45,7 +46,7 @@ public final class Game {
      * @param seed that determines random behavior.
      */
     public Game(int seed) {
-        Random rnd = new Random(seed);
+        this.rnd = new Random(seed);
         this.g = new GameState(rnd);
         this.in = new InputManager();
         initCommandProcessors();
@@ -174,22 +175,33 @@ public final class Game {
 
         System.out.println("OK.");
 
-        if (attackerAction.figure() == g.getPlayer() && Objects.equals(attackerAction.cmd().getKeyWord(), "smack")) {
+        if (attackerAction.figure() == this.g.getPlayer() && Objects.equals(attackerAction.cmd().getKeyWord(), "smack")) {
             g.setActivePlayer(attacker);
             Smack smackCommand = (Smack) attackerAction.cmd().getCommand();
-            smackCommand.playMinigame(g);
+            smackCommand.playMinigame(this.g.getPlayer(), this.rnd);
         }
 
+        boolean isAttackerActionAccurate = attackerAction.cmd().getCommand().rollAccuracy(this.rnd);
+        boolean isDefenderActionAccurate = defenderAction.cmd().getCommand().rollAccuracy(this.rnd);
 
         System.out.println(attacker.getName() + "'s attack: " + attackerAction.cmd().getKeyWord());
+        if (!isAttackerActionAccurate) {
+            System.out.println("It failed!");
+        }
         System.out.println(defender.getName() + "'s defense: " + defenderAction.cmd().getKeyWord());
+        if (!isDefenderActionAccurate) {
+            System.out.println("It failed!");
+        }
 
         g.setActivePlayer(defenderAction.figure());
         defenderAction.cmd().execute(g);
-        defender.tick();
+
 
         g.setActivePlayer(attackerAction.figure());
         attackerAction.cmd().execute(g);
+
+
+        defender.tick();
         attacker.tick();
 
         defender.endDefensePhase();

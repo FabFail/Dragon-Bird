@@ -21,9 +21,7 @@ public class GameState {
     private Figure playerAtTurn; // tracks figure that is taking action
 
     private final Board board;
-    private EnemyAI enemyAI = new EnemyAI();
-    private boolean aiDefChange = false;
-    private boolean aiOffChange = false;
+    private EnemyAI enemyAI;
 
     /**
      * Creates the state of the game.
@@ -61,9 +59,14 @@ public class GameState {
     public void endMatch() {
         this.phase = GamePhase.SETUP;
         this.turnNumber = 0;
+        this.p.reset();
+        this.ai.reset();
+        // reset player stats
+        // reset player card effect
         this.p = null;
         this.ai = null;
         this.enemyAI = new EnemyAI();
+
     }
 
 
@@ -166,23 +169,6 @@ public class GameState {
         return playerAtTurn == p ? ai : p;
     }
 
-    /**
-     * rolls the random object for accuracy.
-     *
-     * @return roll value between 0 and 99
-     */
-    public int getAccuracyRoll() {
-        return this.rnd.nextInt(0, 100);
-    }
-
-    /**
-     * draw a new whole number.
-     *
-     * @return roll value between 1 and 99
-     */
-    public int drawWholeNumber() {
-        return this.rnd.nextInt(1, 100);
-    }
 
     /**
      * Grants access to the EnemyAI that decides over actions.

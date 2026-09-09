@@ -92,9 +92,9 @@ public class Board {
 
 
     private static String napIndicator(Figure fig) {
-        if (fig.getStatManager().getPowerNapTurnCount() > 1) {
+        if (fig.getStatManager().getRemainingPowerNapActions() > 1) {
             return ":";
-        } else if (fig.getStatManager().getPowerNapTurnCount() == 1) {
+        } else if (fig.getStatManager().getRemainingPowerNapActions() == 1) {
             return ".";
         }
         return " ";

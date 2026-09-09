@@ -69,7 +69,7 @@ public class OffensiveStrategy implements Strategy {
 
     private String useOffenseCardPolicy(GameState g) {
         Figure ai = g.getAi();
-        boolean lastRoundOfPowerNap = ai.getStatManager().getPowerNapTurnCount() == 1;
+        boolean lastRoundOfPowerNap = ai.getStatManager().getRemainingPowerNapActions() == 1;
 
         Card strongestCombatCard = getStrongestCombatCard(g.getAi().getCardManager().getHand(),
                 ai.getStatManager().getCardCost());
@@ -147,7 +147,7 @@ public class OffensiveStrategy implements Strategy {
         Figure ai = g.getAi();
         Figure player = g.getPlayer();
 
-        boolean isAfterPowerNap = ai.getStatManager().getPowerNapTurnCount() == 2;
+        boolean isActionThreeAfterPowerNap = ai.getStatManager().getRemainingPowerNapActions() == 2;
 
         boolean hasCombatCard = ai.getCardManager().getHand().stream()
                 .anyMatch(c -> c.getType().isCombatCard());
@@ -155,7 +155,7 @@ public class OffensiveStrategy implements Strategy {
         boolean canMoveForward = HorizontalPosition
                 .calculateDistance(ai.getHorizontalPosition(), player.getHorizontalPosition()) > 0;
 
-        if (isAfterPowerNap && hasCombatCard && canMoveForward) {
+        if (isActionThreeAfterPowerNap && hasCombatCard && canMoveForward) {
             return Actions.MOVE_FORWARD.getCommandString();
         }
 
@@ -164,8 +164,16 @@ public class OffensiveStrategy implements Strategy {
 
     private String useOffensiveEffectCardPolicy(GameState g) {
         Figure ai = g.getAi();
+        Figure player = g.getPlayer();
         Card strongestCombatCard = getStrongestCombatCard(ai.getCardManager().getHand(),
                 ai.getStatManager().getCardCost());
+
+
+        boolean canMoveForward = HorizontalPosition.calculateDistance(ai.getHorizontalPosition(), player.getHorizontalPosition()) > 0;
+
+        if (canMoveForward) {
+            return null;
+        }
 
         if (strongestCombatCard == null) {
             return null;

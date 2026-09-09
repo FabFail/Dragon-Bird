@@ -209,4 +209,9 @@ public class Figure {
     }
 
 
+    public void reset() {
+        this.statManager.reset();
+        this.getCardManager().resetDeck();
+        this.combatDataManager.resetCardEffects();
+    }
 }

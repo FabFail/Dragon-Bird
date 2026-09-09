@@ -1,6 +1,7 @@
 package figure;
 
 import cards.Card;
+import cards.CardType;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,12 +10,13 @@ import java.util.Random;
 
 /**
  * manages hand and deck cards of a figure.
+ *
  * @author ulprv
  */
 public class CardManager {
-    private static final int DECK_MAX_SIZE = 20;
     private static final int HAND_MAX_SIZE = 6;
-    private List<Card> deck;
+    private List<Card> deckTemplate;
+    private List<Card> activeDeck;
     private final List<Card> hand;
     private final String figureName;
 
@@ -25,17 +27,9 @@ public class CardManager {
      */
     public CardManager(String name) {
         this.figureName = name;
-        this.deck = new ArrayList<>();
+        this.deckTemplate = new ArrayList<>();
+        this.activeDeck = new ArrayList<>();
         this.hand = new ArrayList<>();
-    }
-
-    /**
-     * get the figures deck.
-     *
-     * @return a list of cards that compile the deck
-     */
-    public List<Card> getDeck() {
-        return this.deck;
     }
 
     /**
@@ -53,12 +47,7 @@ public class CardManager {
      * @param newDeck is a list of card that will overwrite the old deck.
      */
     public void setDeck(List<Card> newDeck) {
-        if (newDeck.size() > DECK_MAX_SIZE) {
-            IO.println("ERROR: Deck can only hold up to 20 cards");
-            return;
-        }
-
-        this.deck = newDeck;
+        this.deckTemplate = newDeck;
     }
 
     /**
@@ -67,7 +56,8 @@ public class CardManager {
      * @param seed is responsible the ensure deterministic randomness in the game
      */
     public void shuffleDeck(Random seed) {
-        Collections.shuffle(this.deck, seed);
+        Collections.shuffle(this.deckTemplate, seed);
+        this.activeDeck = new ArrayList<>(this.deckTemplate);
     }
 
 
@@ -75,24 +65,26 @@ public class CardManager {
      * draws a card from the deck and adds it to the hand.
      */
     public void drawCardFromDeck() {
-        if (this.deck.isEmpty()) {
+        if (this.activeDeck.isEmpty()) {
             return;
         }
 
-        Card toDraw = this.deck.getFirst();
+        Card toDraw = this.activeDeck.getFirst();
 
         if (this.hand.size() < HAND_MAX_SIZE) {
-            this.deck.removeFirst();
+            this.activeDeck.removeFirst();
+            System.out.println(this.figureName + " drew " + toDraw.getName() + " from deck");
             this.hand.add(toDraw);
         }
     }
 
     /**
      * gives information if player has a set deck that is not empty.
+     *
      * @return true if player has a deck
      */
     public boolean hasNoDeck() {
-        return this.deck.isEmpty();
+        return this.deckTemplate.isEmpty();
     }
 
     /**
@@ -100,23 +92,40 @@ public class CardManager {
      */
     public void printHand() {
         if (hand.isEmpty()) {
-            IO.println("-- no cards --");
+            System.out.println("-- no cards --");
             return;
         }
 
         for (Card c : hand) {
-            if (!c.getType().isDefenseCard()) {
-                IO.println(String.format("%s %d %s D:%d",
+            if (c.getType().isCombatCard()) {
+                System.out.printf("%s %d %s D:%d%n",
                         c.getName(),
                         c.getCost(),
                         c.getType().toString().toLowerCase(),
-                        c.getValue()));
+                        c.getValue());
 
-            } else {
-                IO.println(String.format("%s %d %s",
+            } else if (c.getType().isDefenseCard()) {
+                System.out.printf("%s %d %s%n",
                         c.getName(),
                         c.getCost(),
-                        c.getType().toString().toLowerCase()));
+                        c.getType().getKeyword());
+            } else if (c.getType() == CardType.DAMAGE) {
+                System.out.printf("%s %d %s %d%n",
+                        c.getName(),
+                        c.getCost(),
+                        c.getType().toString().toLowerCase(),
+                        c.getValue());
+            } else if (c.getType() == CardType.REGAIN) {
+                System.out.printf("%s %d %s%n",
+                        c.getName(),
+                        c.getCost(),
+                        c.getType().toString().toLowerCase());
+            } else {
+                System.out.printf("%s %d %s %d%n",
+                        c.getName(),
+                        c.getCost(),
+                        c.getType().toString().toLowerCase(),
+                        c.getValue());
             }
         }
     }
@@ -126,15 +135,23 @@ public class CardManager {
      */
     public void printDeck() {
 
-        if (deck.isEmpty()) {
+        if (activeDeck.isEmpty()) {
             IO.println("No deck for " + this.figureName);
         }
-        IO.println("Deck for " + figureName + " - " + deck.size() + " cards:");
+        IO.println("Deck for " + figureName + " - " + activeDeck.size() + " cards:");
         IO.println();
 
-        for (Card c : deck) {
+        for (Card c : activeDeck) {
             IO.println(c);
         }
+    }
+
+    /**
+     * resets deck.
+     */
+    public void resetDeck() {
+        this.hand.clear();
+        this.activeDeck = new ArrayList<>(this.deckTemplate);
     }
 
 }

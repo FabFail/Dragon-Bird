@@ -1,6 +1,7 @@
 package game.enemyai;
 
 import cards.Card;
+import figure.Figure;
 import figure.FigurePhase;
 import figure.poisition.HorizontalPosition;
 import game.GameState;
@@ -61,7 +62,10 @@ public class DefensiveStrategy implements Strategy {
             return null;
         }
 
-        List<Card> usableEffectCards = getUsableEffectCards(hand, availableCardCost + minLeftOverCardCost);
+        List<Card> usableEffectCards = hand.stream()
+                .filter(c -> c.getType().isEffectCard())
+                .filter(card -> availableCardCost - card.getCost() > minLeftOverCardCost)
+                .toList();
 
         return usableEffectCards.getFirst().getName();
     }
@@ -70,14 +74,22 @@ public class DefensiveStrategy implements Strategy {
     private String useDefCardPolicy(GameState g) {
         List<Card> hand = g.getAi().getCardManager().getHand();
         int availableCardCost = g.getAi().getStatManager().getCardCost();
-        int turnsSincePowerNap = g.getAi().getStatManager().getPowerNapTurnCount();
+        boolean isPowerNapActionFour = g.getAi().getStatManager().getRemainingPowerNapActions() == 1;
         int turnNumber = g.getTurnNumber();
 
-        if (turnNumber < 5 || turnsSincePowerNap == 4) {
+        if (turnNumber < 5) {
             return null;
         }
 
-        List<Card> usableDefenseCards = getUsableDefenseCards(hand, availableCardCost);
+        if (!isPowerNapActionFour) {
+            return null;
+        }
+
+        List<Card> usableDefenseCards = hand.stream()
+                .filter(c -> c.getType().isDefenseCard())
+                .filter(card -> card.getCost() <= availableCardCost)
+                .toList();
+
         if (usableDefenseCards.isEmpty()) {
             return null;
         }
@@ -94,35 +106,26 @@ public class DefensiveStrategy implements Strategy {
     }
 
     private String useEffectCardPolicy(GameState g) {
-        List<Card> hand = g.getAi().getCardManager().getHand();
+        Figure ai = g.getAi();
+        List<Card> hand = ai.getCardManager().getHand();
         int availableCardCost = g.getAi().getStatManager().getCardCost();
         int minLeftOverCardCost = 5;
-        int maxAvailableCardCost = 20;
 
-        if (availableCardCost >= maxAvailableCardCost) {
+
+        if (availableCardCost < 20) {
+
             return null;
         }
 
-        List<Card> usableEffectCards = getUsableEffectCards(hand, availableCardCost - minLeftOverCardCost);
+        List<Card> usableEffectCards = hand.stream()
+                .filter(c -> c.getType().isEffectCard())
+                .filter(card -> availableCardCost - card.getCost() > minLeftOverCardCost)
+                .toList();
 
         if (usableEffectCards.isEmpty()) {
             return null;
         }
 
         return usableEffectCards.getFirst().getName();
-    }
-
-    private List<Card> getUsableEffectCards(List<Card> hand, int availableCardCost) {
-        return hand.stream()
-                .filter(c -> c.getType().isEffectCard())
-                .filter(card -> card.getCost() <= availableCardCost)
-                .toList();
-    }
-
-    private List<Card> getUsableDefenseCards(List<Card> hand, int availableCardCost) {
-        return hand.stream()
-                .filter(c -> c.getType().isDefenseCard())
-                .filter(card -> card.getCost() <= availableCardCost)
-                .toList();
     }
 }
